@@ -5,8 +5,6 @@ RAG chatbot for source code using Streamlit + OpenAI + Qdrant.
 ## Live Demo
 - [Open Live Demo](https://your-live-demo-url.streamlit.app)
 
-Note: Replace the URL above with your deployed Streamlit app URL.
-
 ## What This Project Does
 - Ingests source files from the local [repo](repo) folder.
 - Splits files into chunks and embeds each chunk with OpenAI.
