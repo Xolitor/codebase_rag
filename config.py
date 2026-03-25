@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+MODE = "demo"  
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 LLM_MODEL = "gpt-4o-mini"

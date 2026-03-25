@@ -4,13 +4,14 @@ from openai import OpenAI
 
 
 def search(query):
-    q_emb = embed(query)
+    q_emb_result = embed(query)
+    q_vector = q_emb_result["vector"]
 
     # qdrant-client >= 1.10+ uses query_points for vector similarity search.
     if hasattr(qdrant, "query_points"):
         response = qdrant.query_points(
             collection_name=COLLECTION_NAME,
-            query=q_emb,
+            query=q_vector,
             limit=TOP_K,
         )
         points = getattr(response, "points", [])
@@ -18,7 +19,7 @@ def search(query):
     #     # Backward compatibility with older qdrant-client versions.
     #     points = qdrant.search(
     #         collection_name=COLLECTION_NAME,
-    #         query_vector=q_emb,
+    #         query_vector=q_vector,
     #         limit=TOP_K,
     #     )
 
@@ -27,25 +28,25 @@ def search(query):
 
 client = OpenAI()
 
-def generate_answer(query, context_chunk):
-    context = "\n\n".join([c.get("text", "") for c in context_chunk])
-    prompt = f"""
-        Answer the question based on the context below.
-        Mention file names when relevant.
+# def generate_answer(query, context_chunk):
+#     context = "\n\n".join([c.get("text", "") for c in context_chunk])
+#     prompt = f"""
+#         Answer the question based on the context below.
+#         Mention file names when relevant.
 
-        Context:
-        {context}
+#         Context:
+#         {context}
 
-        Question:
-        {query}
-        """
+#         Question:
+#         {query}
+#         """
     
-    response = client.chat.completions.create(
-        model = LLM_MODEL,
-        messages=[{"role": "user", "content": prompt}]
-    )
+#     response = client.chat.completions.create(
+#         model = LLM_MODEL,
+#         messages=[{"role": "user", "content": prompt}]
+#     )
 
-    return response.choices[0].message.content
+#     return response.choices[0].message.content
 
 
 def generate_answer_stream(query, context_chunk):

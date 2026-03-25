@@ -2,10 +2,10 @@ import streamlit as st
 from ingest import qdrant, load_last_ingest_stats
 from config import COLLECTION_NAME, EMBEDDING_MODEL, VECTOR_SIZE
 
-st.set_page_config(page_title="Vector Demo", page_icon="📊")
+st.set_page_config(page_title="Vector Database", page_icon="📊")
 
-st.markdown("# Vector Demo")
-st.sidebar.header("Vector Demo")
+st.markdown("# Vector Database")
+# st.sidebar.header("Vector Database ")
 
 
 def get_similarity_method(collection_info):
