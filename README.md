@@ -1,107 +1,79 @@
 # Codebase RAG Chatbot
 
-## Project Aim
-This project is a simple Retrieval-Augmented Generation (RAG) chatbot for source code.
-It indexes files from a local repository folder, stores vector embeddings in Qdrant, retrieves relevant code snippets for a user question, and generates an answer with an OpenAI chat model.
+RAG chatbot for source code using Streamlit + OpenAI + Qdrant.
+
+## Live Demo
+- [Open Live Demo](https://your-live-demo-url.streamlit.app)
+
+Note: Replace the URL above with your deployed Streamlit app URL.
+
+## What This Project Does
+- Ingests source files from the local [repo](repo) folder.
+- Splits files into chunks and embeds each chunk with OpenAI.
+- Stores vectors in Qdrant.
+- Answers user questions with retrieval-augmented generation.
+- Shows vector/database metrics and per-chunk inspection in a dedicated demo page.
+
+## Current App Structure
+- [👋_Introduction.py](%F0%9F%91%8B_Introduction.py)
+  - Main Streamlit page for ingesting and chatting.
+  - Validates that vector data exists before running retrieval.
+- [pages/3_📊_Vector_Demo.py](pages/3_%F0%9F%93%8A_Vector_Demo.py)
+  - Displays database/vector metrics.
+  - Shows ingest usage stats (tokens and cost) loaded from persisted ingest summary.
+  - Shows chunk cards with expanders (text preview, source, vector preview, embedding usage).
+- [ingest.py](ingest.py)
+  - Loads files, chunks text, generates embeddings, and upserts to Qdrant.
+  - Tracks and returns ingest stats:
+    - `chunks_indexed`
+    - `total_tokens_used`
+    - `avg_tokens_per_chunk`
+    - `total_embedding_cost_usd`
+  - Persists latest stats to [ingest_stats.json](ingest_stats.json).
+- [rag.py](rag.py)
+  - Performs similarity search and streams final answer generation.
+- [config.py](config.py)
+  - Central config for model names, vector size, collection name, retrieval settings, and embedding price.
 
 ## Tech Stack
-- Python: Core implementation language for ingestion, retrieval, and app orchestration.
-- Streamlit: Web UI for indexing and asking questions.
-- OpenAI API:
-  - Embeddings (`text-embedding-3-small`) to convert code chunks into vectors.
-  - Chat completion model (`gpt-4o-mini`) to generate final answers from retrieved context.
-- Qdrant: Vector database to store and search code embeddings.
-- python-dotenv: Loads environment variables (API key) from `.env`.
-- tiktoken: Installed dependency for tokenization-related workflows.
+- Python
+- Streamlit
+- OpenAI API
+  - Embeddings: `text-embedding-3-small`
+  - Chat model: `gpt-4o-mini`
+- Qdrant
+- python-dotenv
 
-## Requirements
-- Python 3.14+ recommended.
-- A running Qdrant instance on `localhost:6333`.
-- An OpenAI API key in a `.env` file.
-- Python packages from `requirements.txt`:
-  - openai==2.29.0
-  - qdrant-client==1.17.1
-  - streamlit==1.55.0
-  - python-dotenv==1.2.2
-  - tiktoken==0.12.0
-
-## Technical Explanation (File Responsibilities)
-- `app.py`
-  - Streamlit entrypoint/UI.
-  - Provides the "Ingest codebase" button.
-  - Accepts a user query, runs retrieval, then displays the generated answer and sources.
-
-- `ingest.py`
-  - Loads source files from `./repo`.
-  - Splits each file into overlapping chunks.
-  - Creates embeddings for each chunk.
-  - Creates/recreates the Qdrant collection and upserts points.
-
-- `rag.py`
-  - Runs similarity retrieval against Qdrant using `query_points`.
-  - Builds the final context from retrieved chunk payloads.
-  - Calls OpenAI chat completions to produce the answer.
-
-- `config.py`
-  - Central configuration values:
-    - model names
-    - collection name
-    - vector size
-    - top-k retrieval size
-  - Loads `OPENAI_API_KEY` from environment.
-
-- `requirements.txt`
-  - Project dependencies and versions.
-
-- `repo/`
-  - Example codebase to index (currently includes `api.js`, `auth.py`, `database.py`, `utils.py`).
-
-## How to Run
+## Setup
 1. Create and activate a virtual environment.
 2. Install dependencies.
-3. Start Qdrant.
-4. Set `OPENAI_API_KEY` in `.env`.
-5. Run Streamlit.
+3. Start Qdrant on `localhost:6333`.
+4. Add `OPENAI_API_KEY` to `.env`.
+5. Run the Streamlit app.
 
-Example commands (PowerShell):
+PowerShell:
 
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
-
-Start Qdrant with Docker (if you do not already run it):
-
-```powershell
 docker run -p 6333:6333 qdrant/qdrant
+streamlit run "👋_Introduction.py"
 ```
 
-Create `.env` in project root:
+Create `.env`:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-Run the app:
-
-```powershell
-streamlit run app.py
-```
-
-## How to Access Components
-- Streamlit UI:
-  - Open the local URL shown by Streamlit (typically `http://localhost:8501`).
-  - Click "Ingest codebase" to index files from `./repo`.
-  - Ask a question in the input box.
-
-- Qdrant:
-  - API endpoint at `http://localhost:6333/dashboard#/collections`.
-  - Stores vectors in the collection named `codebase`.
-
-- OpenAI:
-  - Used by ingestion (embeddings) and answer generation (chat model).
+## Usage
+1. Open the local Streamlit URL (usually `http://localhost:8501`).
+2. Click **Ingest codebase** on the introduction page.
+3. Ask questions about the indexed code.
+4. Open **Vector Demo** in the sidebar to inspect metrics and chunk-level details.
 
 ## Notes
-- Re-ingesting recreates the collection, so previous vectors are replaced.
-- If indexing returns zero points, retrieval will not return useful context.
+- Re-ingesting recreates the Qdrant collection and replaces previous vectors.
+- Ingest stats are loaded from [ingest_stats.json](ingest_stats.json), so no full recomputation is needed on the vector page.
+- If you indexed data before stats tracking was added, re-ingest once to populate latest usage stats.
