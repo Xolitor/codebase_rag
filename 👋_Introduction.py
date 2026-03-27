@@ -44,9 +44,9 @@ st.caption(f"Current mode: {MODE}")
 
 st.write("## Instructions")
 st.write("""
-1. Upload your codebase for ingestion by clicking the 'Ingest codebase' button, or provide a GitHub URL in the sidebar for direct ingestion from GitHub.
-2. Once ingested, ask questions about the codebase in the input box.
-3. View the generated answer, sources, retrieved chunks. You can also check the 'Vector Demo' page to see details about the vector database.
+1. Ingest a codebase from the sidebar using a GitHub URL or uploaded files.
+2. Ask a question about the ingested codebase in the input box.
+3. Review the answer, sources, and retrieved chunks (with vector/BM25 scores and previews).
 """)
 
 st.set_page_config(
