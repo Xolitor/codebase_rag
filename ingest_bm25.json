@@ -1,0 +1,155 @@
+{
+  "tokenizer": "re.findall(r\\\"\\\\w+\\\", text.lower())",
+  "chunks_indexed": 7,
+  "entries": [
+    {
+      "id": 0,
+      "source": "api.js",
+      "text_preview": "function getUser(userId) {\r\n    return {\r\n        id: userId,\r\n        name: \"John Doe\"\r\n    }",
+      "token_count": 9,
+      "tokens_preview": [
+        "function",
+        "getuser",
+        "userid",
+        "return",
+        "id",
+        "userid",
+        "name",
+        "john",
+        "doe"
+      ]
+    },
+    {
+      "id": 1,
+      "source": "api.js",
+      "text_preview": "function createUser(name) {\r\n    return {\r\n        id: Math.random(),\r\n        name: name\r\n    }",
+      "token_count": 9,
+      "tokens_preview": [
+        "function",
+        "createuser",
+        "name",
+        "return",
+        "id",
+        "math",
+        "random",
+        "name",
+        "name"
+      ]
+    },
+    {
+      "id": 2,
+      "source": "auth.py",
+      "text_preview": "def login(username, password):\r\n    if username == \"admin\" and password == \"1234\":\r\n        return {\"status\": \"success\", \"token\": \"abc123\"}\r\n    return {\"status\": \"error\", \"message\": \"Invalid credentials\"}",
+      "token_count": 21,
+      "tokens_preview": [
+        "def",
+        "login",
+        "username",
+        "password",
+        "if",
+        "username",
+        "admin",
+        "and",
+        "password",
+        "1234",
+        "return",
+        "status",
+        "success",
+        "token",
+        "abc123",
+        "return",
+        "status",
+        "error",
+        "message",
+        "invalid",
+        "credentials"
+      ]
+    },
+    {
+      "id": 3,
+      "source": "auth.py",
+      "text_preview": "def logout(user_id):\r\n    return f\"User {user_id} logged out\"",
+      "token_count": 9,
+      "tokens_preview": [
+        "def",
+        "logout",
+        "user_id",
+        "return",
+        "f",
+        "user",
+        "user_id",
+        "logged",
+        "out"
+      ]
+    },
+    {
+      "id": 4,
+      "source": "database.py",
+      "text_preview": "class Database:\r\n    def __init__(self):\r\n        self.connection = None\r\n\r\n    def connect(self):\r\n        self.connection = \"connected\"\r\n        return \"Database connected\"\r\n\r\n    def disconnect(self):\r\n        self.connection = None\r\n        return \"Database disconnected\"\r\n\r\n    def fetch_user(se",
+      "token_count": 36,
+      "tokens_preview": [
+        "class",
+        "database",
+        "def",
+        "__init__",
+        "self",
+        "self",
+        "connection",
+        "none",
+        "def",
+        "connect",
+        "self",
+        "self",
+        "connection",
+        "connected",
+        "return",
+        "database",
+        "connected",
+        "def",
+        "disconnect",
+        "self",
+        "self",
+        "connection",
+        "none",
+        "return",
+        "database",
+        "disconnected",
+        "def",
+        "fetch_user",
+        "self",
+        "user_id"
+      ]
+    },
+    {
+      "id": 5,
+      "source": "utils.py",
+      "text_preview": "def format_response(data):\r\n    return {\r\n        \"status\": \"ok\",\r\n        \"data\": data\r\n    }",
+      "token_count": 8,
+      "tokens_preview": [
+        "def",
+        "format_response",
+        "data",
+        "return",
+        "status",
+        "ok",
+        "data",
+        "data"
+      ]
+    },
+    {
+      "id": 6,
+      "source": "utils.py",
+      "text_preview": "def calculate_sum(a, b):\r\n    return a + b",
+      "token_count": 7,
+      "tokens_preview": [
+        "def",
+        "calculate_sum",
+        "a",
+        "b",
+        "return",
+        "a",
+        "b"
+      ]
+    }
+  ]
+}

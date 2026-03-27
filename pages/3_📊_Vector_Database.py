@@ -1,5 +1,5 @@
 import streamlit as st
-from ingest import qdrant, load_last_ingest_stats
+from ingest import qdrant, load_last_ingest_stats, infer_code_language
 from config import COLLECTION_NAME, EMBEDDING_MODEL, VECTOR_SIZE
 
 st.set_page_config(page_title="Vector Database", page_icon="📊")
@@ -142,7 +142,8 @@ else:
 
                 with st.expander("Text Preview", expanded=False):
                     chunk_text = p.payload.get("text", "")
-                    st.write(chunk_text[:800])
+                    source = p.payload.get("source", "")
+                    st.code(chunk_text[:800], language=infer_code_language(source))
                     st.caption(f"Characters in chunk: {len(chunk_text)}")
 
                 with st.expander("Source", expanded=False):

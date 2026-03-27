@@ -1,10 +1,12 @@
 import os
 import json
+import re
 import time
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
+import chunk
 from config import (
     COLLECTION_NAME,
     VECTOR_SIZE,
@@ -13,11 +15,41 @@ from config import (
     MODE
 )
 from openai import OpenAI
+from chunk import chunk_code_by_language
+from hybrid_retrieval import add_to_bm25, build_bm25, reset_bm25, get_bm25_entries
 
 client = OpenAI()
 INGEST_STATS_PATH = os.path.join(os.path.dirname(__file__), "ingest_stats.json")
+INGEST_BM25_PATH = os.path.join(os.path.dirname(__file__), "ingest_bm25.json")
 
 #LOAD
+def infer_code_language(source):
+    source = (source or "").lower()
+    if source.endswith(".py"):
+        return "python"
+    if source.endswith(".js"):
+        return "javascript"
+    if source.endswith(".ts"):
+        return "typescript"
+    if source.endswith(".java"):
+        return "java"
+    if source.endswith(".cpp"):
+        return "cpp"
+    if source.endswith(".c"):
+        return "c"
+    if source.endswith(".go"):
+        return "go"
+    if source.endswith(".rb"):
+        return "ruby"
+    if source.endswith(".php"):
+        return "php"
+    if source.endswith(".html"):
+        return "html"
+    if source.endswith(".css"):
+        return "css"
+    return "text"
+
+
 def load_files(path):
     docs = []
     for root,_,files in os.walk(path):
@@ -120,7 +152,6 @@ def load_files_from_github(url):
         print(f"[ingest] failed to load files from GitHub URL '{url}': {exc}")
         return docs
 
-
 def load_files_drag_and_drop(uploaded_files):
     docs = []
     allowed_exts = (".py", ".js", ".ts", ".java", ".cpp", ".c", ".go", ".rb", ".php", ".html", ".css")
@@ -151,19 +182,9 @@ def load_files_drag_and_drop(uploaded_files):
     print(f"[ingest][upload] loaded={len(docs)} skipped={skipped}")
     return docs
 
-
-#CHUNK
-def chunk_text(text, chunk_size=500, overlap=100):
-    chunks = []
-    step = max(1, chunk_size - overlap)
-    for i in range(0, len(text), step):
-        chunks.append(text[i:i + chunk_size])
-    return chunks
-
 #EMBED
 def estimate_embedding_cost(tokens_used):
     return (tokens_used / 1_000_000) * EMBEDDING_PRICE_PER_1M_TOKENS
-
 
 def embed(text):
     response = client.embeddings.create(
@@ -200,14 +221,12 @@ else:
         port=6333
     )
 
-
 def save_last_ingest_stats(stats):
     try:
         with open(INGEST_STATS_PATH, "w", encoding="utf-8") as file:
             json.dump(stats, file, indent=2)
     except Exception as exc:
         print(f"[ingest] failed to persist stats: {exc}")
-
 
 def load_last_ingest_stats():
     try:
@@ -220,11 +239,35 @@ def load_last_ingest_stats():
         print(f"[ingest] failed to load persisted stats: {exc}")
         return None
 
+
+def save_last_bm25_stats(stats):
+    try:
+        with open(INGEST_BM25_PATH, "w", encoding="utf-8") as file:
+            json.dump(stats, file, indent=2)
+    except Exception as exc:
+        print(f"[ingest] failed to persist bm25 stats: {exc}")
+
+
+def load_last_bm25_stats():
+    try:
+        if not os.path.exists(INGEST_BM25_PATH):
+            return None
+
+        with open(INGEST_BM25_PATH, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except Exception as exc:
+        print(f"[ingest] failed to load persisted bm25 stats: {exc}")
+        return None
+
 def init_collection():
     qdrant.recreate_collection(
         collection_name=COLLECTION_NAME,
         vectors_config={"size": VECTOR_SIZE, "distance": "Cosine"}
     )
+    reset_bm25()
+
+def tokenize(text):
+    return re.findall(r"\w+", text.lower())
 
 def _ingest_docs(docs):
     points = []
@@ -233,8 +276,14 @@ def _ingest_docs(docs):
     total_embedding_cost_usd = 0.0
 
     for doc in docs:
-        chunks = chunk_text(doc["text"])
-        for chunk in chunks:
+        # chunks = chunk_text(doc["text"])
+        file_chunks = chunk_code_by_language(doc["text"], doc["source"])
+        # chunks.extend(file_chunks)
+        for chunk in file_chunks:
+            #BM25 CORPUS PREPARATION
+            add_to_bm25(chunk, doc["source"], point_id=idx)
+
+            #REGULAR EMBEDDING
             embedding_result = embed(chunk)
             vector = embedding_result["vector"]
             chunk_tokens = embedding_result["tokens_used"]
@@ -263,6 +312,11 @@ def _ingest_docs(docs):
             "total_embedding_cost_usd": 0.0,
         }
         save_last_ingest_stats(stats)
+        save_last_bm25_stats({
+            "tokenizer": r"re.findall(r\"\\w+\", text.lower())",
+            "chunks_indexed": 0,
+            "entries": [],
+        })
         return stats
 
     qdrant.upsert(
@@ -286,8 +340,15 @@ def _ingest_docs(docs):
         "total_embedding_cost_usd": total_embedding_cost_usd,
     }
     save_last_ingest_stats(stats)
-    return stats
+    build_bm25()
 
+    bm25_entries = get_bm25_entries(limit_tokens=30)
+    save_last_bm25_stats({
+        "tokenizer": r"re.findall(r\"\\w+\", text.lower())",
+        "chunks_indexed": chunks_indexed,
+        "entries": bm25_entries,
+    })
+    return stats
 
 def ingest_codebase(path):
     docs = load_files(path)

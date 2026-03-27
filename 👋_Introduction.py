@@ -1,8 +1,43 @@
 import streamlit as st
 import time
 from rag import search, generate_answer_stream
-from ingest import init_collection, ingest_codebase, ingest_codebase_from_github, ingest_codebase_from_uploads, qdrant
-from config import COLLECTION_NAME, MODE
+from ingest import init_collection, ingest_codebase, ingest_codebase_from_github, ingest_codebase_from_uploads, qdrant, infer_code_language
+from config import COLLECTION_NAME, MODE, MAX_INPUT_CHARS, RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW_SECONDS
+
+
+def is_rate_limited(now_s):
+    history_key = "rate_limit_history"
+    history = st.session_state.get(history_key, [])
+    history_before = len(history)
+
+    # Keep only recent requests inside the current window.
+    cutoff = now_s - RATE_LIMIT_WINDOW_SECONDS
+    history = [ts for ts in history if ts >= cutoff]
+    st.session_state[history_key] = history
+
+    print(
+        f"[rate_limit] check before={history_before} after={len(history)} "
+        f"limit={RATE_LIMIT_MAX_REQUESTS}/{RATE_LIMIT_WINDOW_SECONDS}s"
+    )
+
+    if len(history) >= RATE_LIMIT_MAX_REQUESTS:
+        retry_after_s = int(max(1, RATE_LIMIT_WINDOW_SECONDS - (now_s - history[0])))
+        print(
+            f"[rate_limit] blocked retry_after_s={retry_after_s} "
+            f"recent_requests={len(history)}"
+        )
+        return True, retry_after_s
+
+    print(f"[rate_limit] allowed recent_requests={len(history)}")
+    return False, 0
+
+
+def record_request(now_s):
+    history_key = "rate_limit_history"
+    history = st.session_state.get(history_key, [])
+    history.append(now_s)
+    st.session_state[history_key] = history
+    print(f"[rate_limit] recorded total_recent_requests={len(history)}")
 
 st.title("💬 Codebase RAG Assistant")
 st.caption(f"Current mode: {MODE}")
@@ -93,6 +128,23 @@ def has_vector_data():
 
 query = st.text_input("Ask a question:")
 
+if query and len(query) > MAX_INPUT_CHARS:
+    print(f"[input_guard] blocked length={len(query)} max={MAX_INPUT_CHARS}")
+    st.error("Input too long")
+    st.stop()
+
+if query:
+    print(f"[query] received length={len(query)}")
+    now_s = time.time()
+    limited, retry_after_s = is_rate_limited(now_s)
+    if limited:
+        st.error(
+            f"Rate limit exceeded. Try again in {retry_after_s}s "
+            f"({RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW_SECONDS}s)."
+        )
+        st.stop()
+    record_request(now_s)
+
 if query:
     if not has_vector_data():
         st.info("Ingest codebase first.")
@@ -150,7 +202,7 @@ if query:
 
             with perf_col3:
                 with st.container(border=True):
-                    st.caption("Total latency")
+                    st.caption("Generation latency")
                     st.subheader(f"{generation_latency_s:.3f}s" if generation_latency_s is not None else "N/A")
 
             st.caption(f"Total latency: {total_latency_s:.3f}s")
@@ -161,13 +213,45 @@ if query:
 
         with st.expander("Retrieved chunks"):
             for idx, r in enumerate(results, start=1):
-                score = r.get("score")
+                hybrid_score = r.get("score")
+                vector_score = r.get("vector_score")
+                bm25_score = r.get("bm25_score")
+                bm25_metrics = r.get("bm25_metrics") or {}
                 with st.container(border=True):
                     st.subheader(f"Chunk #{idx}")
                     st.caption(
-                        f"Cosine similarity score: {score:.6f}"
-                        if isinstance(score, (int, float))
-                        else "Cosine similarity score: N/A"
+                        f"Hybrid score: {hybrid_score:.6f}"
+                        if isinstance(hybrid_score, (int, float))
+                        else "Hybrid score: N/A"
                     )
-                    st.write(r.get("text", "")[:300])
+                    st.caption(
+                        f"Vector similarity: {vector_score:.6f}"
+                        if isinstance(vector_score, (int, float))
+                        else "Vector similarity: N/A"
+                    )
+                    st.caption(
+                        f"BM25 score: {bm25_score:.6f}"
+                        if isinstance(bm25_score, (int, float))
+                        else "BM25 score: N/A"
+                    )
+
+                    if bm25_metrics:
+                        tf_sum = bm25_metrics.get("tf_sum")
+                        idf_sum = bm25_metrics.get("idf_sum")
+                        matched_terms_count = bm25_metrics.get("matched_terms_count")
+                        bm25_term_score_sum = bm25_metrics.get("bm25_term_score_sum")
+                        st.caption(
+                            "BM25 metrics: "
+                            f"matched_terms={matched_terms_count}, "
+                            f"tf_sum={tf_sum}, "
+                            f"idf_sum={idf_sum}, "
+                            f"term_score_sum={bm25_term_score_sum}"
+                        )
+
+                        with st.expander("BM25 term details", expanded=False):
+                            st.write(bm25_metrics.get("per_term", []))
+
+                    source = r.get("source", "")
+                    chunk_preview = r.get("text", "")[:300]
+                    st.code(chunk_preview, language=infer_code_language(source))
 
