@@ -12,15 +12,20 @@ RAG chatbot for source code using Streamlit + OpenAI + Qdrant.
 - Builds a BM25 lexical index alongside vector storage for hybrid retrieval.
 - Runs hybrid search by combining vector similarity scores and BM25 scores.
 - Streams retrieval-augmented answers with source and chunk-level inspection.
+- Includes a benchmark workflow to compare chunking strategies and search strategies.
 - Applies safety nets: rate limiting, input length guard, query sanitization, and prompt hardening directives.
 - Shows vector and BM25 database metrics for debugging and observability.
 
 ## Current App Structure
 - [👋_Introduction.py](%F0%9F%91%8B_Introduction.py)
   - Main Streamlit page for ingestion and chat.
-  - Supports GitHub URL and uploaded-file ingestion.
+  - Supports GitHub URL, uploaded files, and a built-in example repo ingestion path.
   - Enforces input guardrails (rate limiting and max input length).
   - Displays hybrid retrieval diagnostics (hybrid/vector/BM25 scores and BM25 term metrics).
+- [pages/5_🏁_Benchmark_Results.py](pages/5_%F0%9F%8F%81_Benchmark_Results.py)
+  - Compares chunking strategies: regular text chunking vs syntax-aware code chunking.
+  - Compares search strategies: vector-only vs hybrid search.
+  - Shows per-strategy averages, per-query side-by-side metrics, and analysis summaries.
 - [pages/3_📊_Vector_Database.py](pages/3_%F0%9F%93%8A_Vector_Database.py)
   - Displays vector database metrics and ingestion usage (tokens/cost).
   - Shows vector chunk inspection with source, preview, embedding usage, and vector preview.
@@ -29,6 +34,7 @@ RAG chatbot for source code using Streamlit + OpenAI + Qdrant.
   - Supports source filtering and chunk token/text preview inspection.
 - [ingest.py](ingest.py)
   - Loads files from local path, GitHub, or uploads.
+  - Enforces a file-ingest cap using `MAX_INGEST_FILES` from config.
   - Performs chunking, embedding, Qdrant upsert, and BM25 corpus/index build.
   - Tracks and returns ingest stats:
     - `chunks_indexed`
@@ -36,6 +42,7 @@ RAG chatbot for source code using Streamlit + OpenAI + Qdrant.
     - `avg_tokens_per_chunk`
     - `total_embedding_cost_usd`
   - Persists latest stats to [ingest_stats.json](ingest_stats.json) and BM25 stats to [ingest_bm25.json](ingest_bm25.json).
+  - Persists chunking benchmark snapshot to [chunking_strategies.json](chunking_strategies.json).
 - [chunk.py](chunk.py)
   - Implements syntax-aware chunking for Python and JavaScript/TypeScript.
   - Falls back to generic text chunking when syntax chunking is unavailable.
@@ -48,6 +55,25 @@ RAG chatbot for source code using Streamlit + OpenAI + Qdrant.
   - Streams final answer generation with defensive prompt directives.
 - [config.py](config.py)
   - Central config for model names, vector size, collection name, retrieval settings, and embedding price.
+
+## Benchmark Artifacts
+- [chunking_strategies.json](chunking_strategies.json)
+  - Stores chunking comparison metrics:
+    - chunks generated
+    - total tokens used
+    - average tokens per chunk
+    - total embedding cost
+  - Kept as a stable snapshot for benchmark consistency.
+- [hybrid_search_results.json](hybrid_search_results.json)
+  - Stores 5-query benchmark results for hybrid search.
+  - Includes answer metrics (tokens, cost, latencies) and chunk-level scores (hybrid/vector/BM25).
+- [vector_search_results.json](vector_search_results.json)
+  - Stores the same 5-query benchmark for vector-only search.
+  - Includes the same answer metrics, with unavailable hybrid/BM25 fields set to null.
+- [test_hybrid_search.py](test_hybrid_search.py)
+  - Benchmark runner that ingests the example repo and writes hybrid benchmark results.
+- [test_vector_search.py](test_vector_search.py)
+  - Benchmark runner that ingests the example repo and writes vector-only benchmark results.
 
 ## Tech Stack
 - Python
@@ -83,9 +109,31 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ## Usage
 1. Open the local Streamlit URL (usually `http://localhost:8501`).
-2. Click **Ingest codebase** on the introduction page.
+2. Ingest a codebase from one of three options on the introduction page:
+  - Ingest from GitHub
+  - Ingest uploaded files
+  - Use Example Repo
 3. Ask questions about the indexed code.
-4. Open **Vector Database** in the sidebar to inspect metrics and chunk-level details
+4. Open **Vector Database** and **BM25 Database** in the sidebar to inspect retrieval data.
+5. Open **Benchmark Results** to compare chunking and search strategies.
+
+## Reproducing Benchmark Results
+1. Run hybrid benchmark:
+
+```powershell
+python test_hybrid_search.py
+```
+
+2. Run vector-only benchmark:
+
+```powershell
+python test_vector_search.py
+```
+
+3. Open the **Benchmark Results** page to review:
+  - Chunking comparison and summary analysis
+  - Search strategy comparison and summary analysis
+  - Query-level side-by-side metrics
 
 ## Notes
 - Re-ingesting recreates the Qdrant collection and replaces previous vectors.
