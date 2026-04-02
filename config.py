@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODE = "demo"  
+MODE = "dev"  
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -27,3 +27,5 @@ HYBRID_DEBUG_TOP_N = 5
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
+
+MAX_INGEST_FILES = 25

@@ -1,0 +1,352 @@
+{
+  "generated_at_utc": "2026-04-02T14:56:58.999558+00:00",
+  "dataset": "repo",
+  "ingest_stats": {
+    "chunks_indexed": 7,
+    "total_tokens_used": 220,
+    "avg_tokens_per_chunk": 31.428571428571427,
+    "total_embedding_cost_usd": 4.4e-06
+  },
+  "queries": [
+    {
+      "query": "is there any class structure used in the code base (with the __init__ METHOD) ?",
+      "answer": "Yes, there is a class structure used in the code base. The `Database` class includes the `__init__` method, which initializes the class's attributes.",
+      "prompt_tokens": 311,
+      "completion_tokens": 34,
+      "total_tokens": 345,
+      "estimated_chat_cost_usd": 6.705e-05,
+      "retrieval_latency_s": 0.2546749000030104,
+      "generation_latency_s": 3.2082112999923993,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": 0.7041382610126874,
+          "vector_similarity": 0.26460007,
+          "bm25_score": 1.7297273733756244
+        },
+        {
+          "rank": 2,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": 0.134226078,
+          "vector_similarity": 0.19175154,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 3,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": 0.09468044599999999,
+          "vector_similarity": 0.13525778,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 4,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": 0.087433241,
+          "vector_similarity": 0.12490463,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 5,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": 0.080986885,
+          "vector_similarity": 0.11569555,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 6,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": 0.05813758999999999,
+          "vector_similarity": 0.0830537,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 7,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": 0.048341831999999994,
+          "vector_similarity": 0.06905976,
+          "bm25_score": 0.0
+        }
+      ]
+    },
+    {
+      "query": "Trace user data flow across files: where is a user created and where is a user fetched, including language differences.",
+      "answer": "Based on the context provided, user data flow can be traced through the following methods and functions, noting the language differences:\n\n1. **User Creation**:\n   - In the JavaScript section, the function `createUser(name)` is responsible for creating a user. It generates a new user object with a randomly assigned ID and the provided name:\n     ```javascript\n     function createUser(name) {\n         return {\n             id: Math.random(),\n             name: name\n         }\n     }\n     ```\n\n2. **User Fetching**:\n   - In the Python section, the method `fetch_user(user_id)` in the `Database` class is responsible for fetching a user's data. It retrieves user details based on the provided user ID:\n     ```python\n     def fetch_user(self, user_id):\n         return {\"id\": user_id, \"name\": \"Test User\"}\n     ```\n\nIn summary, the user creation occurs in the JavaScript file with `createUser`, while the user fetching is handled in the Python file with the `fetch_user` method of the `Database` class.",
+      "prompt_tokens": 315,
+      "completion_tokens": 221,
+      "total_tokens": 536,
+      "estimated_chat_cost_usd": 0.00017985,
+      "retrieval_latency_s": 0.2336901999951806,
+      "generation_latency_s": 4.61849500000244,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": 1.5292931418583906,
+          "vector_similarity": 0.04122173,
+          "bm25_score": 5.001459769527968
+        },
+        {
+          "rank": 2,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": 1.0330115212615516,
+          "vector_similarity": 0.2636612,
+          "bm25_score": 2.8281622708718386
+        },
+        {
+          "rank": 3,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": 0.860234762923792,
+          "vector_similarity": 0.05393821,
+          "bm25_score": 2.7415933864126396
+        },
+        {
+          "rank": 4,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": 0.582677565271114,
+          "vector_similarity": 0.23448554,
+          "bm25_score": 1.3951256242370467
+        },
+        {
+          "rank": 5,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": 0.44632292222524694,
+          "vector_similarity": 0.12172866,
+          "bm25_score": 1.2037095340841564
+        },
+        {
+          "rank": 6,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": 0.24358447399999997,
+          "vector_similarity": 0.34797782,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 7,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": 0.19807016599999996,
+          "vector_similarity": 0.28295738,
+          "bm25_score": 0.0
+        }
+      ]
+    },
+    {
+      "query": "Which function validates credentials, what are the accepted values, and what token is returned on success?",
+      "answer": "The function that validates credentials is `login(username, password)`. The accepted values are the username \"admin\" and the password \"1234\". On successful validation, it returns a token with the value \"abc123\".",
+      "prompt_tokens": 311,
+      "completion_tokens": 44,
+      "total_tokens": 355,
+      "estimated_chat_cost_usd": 7.305e-05,
+      "retrieval_latency_s": 0.2960634999908507,
+      "generation_latency_s": 2.4397342999873217,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": 1.735165745900988,
+          "vector_similarity": 0.41530615,
+          "bm25_score": 4.8148381363366255
+        },
+        {
+          "rank": 2,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": 0.4166344780871839,
+          "vector_similarity": 0.19116893,
+          "bm25_score": 0.9427207569572795
+        },
+        {
+          "rank": 3,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": 0.4159543580871839,
+          "vector_similarity": 0.19019733,
+          "bm25_score": 0.9427207569572795
+        },
+        {
+          "rank": 4,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": 0.079572773,
+          "vector_similarity": 0.11367539,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 5,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": 0.078883336,
+          "vector_similarity": 0.11269048,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 6,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": 0.07681583699999998,
+          "vector_similarity": 0.10973691,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 7,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": -0.021598377499999998,
+          "vector_similarity": -0.030854825,
+          "bm25_score": 0.0
+        }
+      ]
+    },
+    {
+      "query": "Explain how connection state is managed in the database component before and after connect/disconnect calls.",
+      "answer": "In the provided context, the `Database` class manages its connection state through the `connection` attribute, which is initialized to `None` in the constructor (`__init__` method). \n\n1. **Before `connect` Call:**\n   - The connection state is `None`, indicating that the database is not connected.\n\n2. **After `connect` Call:**\n   - When the `connect` method is called, the `connection` attribute is set to `\"connected\"`, reflecting that the database has successfully established a connection. The method returns the string `\"Database connected\"` to indicate this state change.\n\n3. **Before `disconnect` Call:**\n   - If the `disconnect` method is called after a successful `connect`, the connection state is represented by the string `\"connected\"`.\n\n4. **After `disconnect` Call:**\n   - When the `disconnect` method is invoked, the `connection` attribute is reset back to `None`, indicating that the connection to the database has been terminated. The method returns the string `\"Database disconnected\"` to confirm that the connection has been closed.\n\nIn summary, the connection state is managed by changing the value of the `connection` attribute between `None` (not connected) and `\"connected\"` (connected), with specific methods providing clear feedback on the connection status.",
+      "prompt_tokens": 310,
+      "completion_tokens": 268,
+      "total_tokens": 578,
+      "estimated_chat_cost_usd": 0.0002073,
+      "retrieval_latency_s": 0.3773358999751508,
+      "generation_latency_s": 5.327349600003799,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": 1.8205304885522087,
+          "vector_similarity": 0.34846646,
+          "bm25_score": 5.255346555174028
+        },
+        {
+          "rank": 2,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": 0.43114287622524694,
+          "vector_similarity": 0.10004288,
+          "bm25_score": 1.2037095340841564
+        },
+        {
+          "rank": 3,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": 0.0701621165,
+          "vector_similarity": 0.100231595,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 4,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": 0.066679326,
+          "vector_similarity": 0.09525618,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 5,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": 0.05509409499999999,
+          "vector_similarity": 0.07870585,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 6,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": 0.027034518,
+          "vector_similarity": 0.03862074,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 7,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": 0.0197812097,
+          "vector_similarity": 0.028258871,
+          "bm25_score": 0.0
+        }
+      ]
+    },
+    {
+      "query": "Compare utility helpers that format payloads versus compute arithmetic; include expected output structure.",
+      "answer": "In the provided context, there are two types of utility helpers: one that formats payloads and another that computes arithmetic.\n\n1. **Utility Helpers that Format Payloads**:\n   - **Function**: `format_response(data)`\n   - **Purpose**: This function takes any data as input and formats it into a standard response structure.\n   - **Output Structure**: The output is a dictionary with a status and the provided data. \n     - **Example Input**: If `data` is `\"Hello, World!\"`, the output will be:\n       ```python\n       {\n           \"status\": \"ok\",\n           \"data\": \"Hello, World!\"\n       }\n       ```\n\n2. **Utility Helpers that Compute Arithmetic**:\n   - **Function**: `calculate_sum(a, b)`\n   - **Purpose**: This function takes two numerical inputs and computes their sum.\n   - **Output Structure**: The output is a numerical value representing the sum of the two inputs.\n     - **Example Input**: If `a` is `5` and `b` is `3`, the output will be:\n       ```python\n       8\n       ```\n\n### Comparison:\n- **Output Type**: The formatting utility outputs a structured response (a dictionary), while the arithmetic utility outputs a single numerical value.\n- **Use Case**: `format_response(data)` is useful for standardizing responses, particularly in APIs, whereas `calculate_sum(a, b)` is specific to numerical computations.\n\n### Summary:\nThe formatting utility is designed for creating uniform responses, ideal in scenarios involving API interactions or data presentation. In contrast, the arithmetic utility is purely for basic calculations, serving a different functional need in applications.",
+      "prompt_tokens": 308,
+      "completion_tokens": 348,
+      "total_tokens": 656,
+      "estimated_chat_cost_usd": 0.000255,
+      "retrieval_latency_s": 0.3144861999899149,
+      "generation_latency_s": 6.559729100001277,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": 0.19960365600000002,
+          "vector_similarity": 0.28514808,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 2,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": 0.141272026,
+          "vector_similarity": 0.20181718,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 3,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": 0.105301441,
+          "vector_similarity": 0.15043063,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 4,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": 0.066766567,
+          "vector_similarity": 0.09538081,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 5,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": 0.028242708899999996,
+          "vector_similarity": 0.040346727,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 6,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": 0.0212586878,
+          "vector_similarity": 0.030369554,
+          "bm25_score": 0.0
+        },
+        {
+          "rank": 7,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": -0.029157861599999998,
+          "vector_similarity": -0.041654088,
+          "bm25_score": 0.0
+        }
+      ]
+    }
+  ]
+}

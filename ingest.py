@@ -12,15 +12,17 @@ from config import (
     VECTOR_SIZE,
     EMBEDDING_MODEL,
     EMBEDDING_PRICE_PER_1M_TOKENS,
-    MODE
+    MODE,
+    MAX_INGEST_FILES,
 )
 from openai import OpenAI
-from chunk import chunk_code_by_language
+from chunk import chunk_code_by_language, chunk_text
 from hybrid_retrieval import add_to_bm25, build_bm25, reset_bm25, get_bm25_entries
 
 client = OpenAI()
 INGEST_STATS_PATH = os.path.join(os.path.dirname(__file__), "ingest_stats.json")
 INGEST_BM25_PATH = os.path.join(os.path.dirname(__file__), "ingest_bm25.json")
+CHUNKING_STRATEGIES_PATH = os.path.join(os.path.dirname(__file__), "chunking_strategies.json")
 
 #LOAD
 def infer_code_language(source):
@@ -52,6 +54,7 @@ def infer_code_language(source):
 
 def load_files(path):
     docs = []
+    capped = False
     for root,_,files in os.walk(path):
         for f in files:
             if f.endswith((".py", ".js", ".ts", ".java", ".cpp", ".c", ".go", ".rb", ".php", ".html", ".css")):
@@ -60,6 +63,14 @@ def load_files(path):
                         "text": file.read(),
                         "source": f,
                     })
+                if len(docs) >= MAX_INGEST_FILES:
+                    capped = True
+                    break
+        if capped:
+            break
+
+    if capped:
+        print(f"[ingest] capped local ingest to first {MAX_INGEST_FILES} supported files")
     return docs
 
 def load_files_from_github(url):
@@ -124,6 +135,13 @@ def load_files_from_github(url):
         if candidate_paths:
             print(f"[ingest][github] first_candidate={candidate_paths[0]}")
 
+        if len(candidate_paths) > MAX_INGEST_FILES:
+            print(
+                f"[ingest][github] capping files from {len(candidate_paths)} "
+                f"to {MAX_INGEST_FILES}"
+            )
+        candidate_paths = candidate_paths[:MAX_INGEST_FILES]
+
         print("[ingest][github] step=5 download_candidate_files")
         failed_files = 0
         for i, file_path in enumerate(candidate_paths, start=1):
@@ -164,6 +182,10 @@ def load_files_drag_and_drop(uploaded_files):
     skipped = 0
 
     for uploaded_file in uploaded_files:
+        if len(docs) >= MAX_INGEST_FILES:
+            print(f"[ingest][upload] capped uploaded ingest to first {MAX_INGEST_FILES} supported files")
+            break
+
         file_name = getattr(uploaded_file, "name", "")
         if not file_name.endswith(allowed_exts):
             skipped += 1
@@ -259,6 +281,32 @@ def load_last_bm25_stats():
         print(f"[ingest] failed to load persisted bm25 stats: {exc}")
         return None
 
+
+def save_last_chunking_strategies(stats, overwrite=False):
+    try:
+        if os.path.exists(CHUNKING_STRATEGIES_PATH) and not overwrite:
+            print(
+                "[ingest] chunking_strategies.json already exists; "
+                "keeping existing benchmark snapshot"
+            )
+            return
+        with open(CHUNKING_STRATEGIES_PATH, "w", encoding="utf-8") as file:
+            json.dump(stats, file, indent=2)
+    except Exception as exc:
+        print(f"[ingest] failed to persist chunking strategy stats: {exc}")
+
+
+def load_last_chunking_strategies():
+    try:
+        if not os.path.exists(CHUNKING_STRATEGIES_PATH):
+            return None
+
+        with open(CHUNKING_STRATEGIES_PATH, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except Exception as exc:
+        print(f"[ingest] failed to load chunking strategy stats: {exc}")
+        return None
+
 def init_collection():
     qdrant.recreate_collection(
         collection_name=COLLECTION_NAME,
@@ -274,12 +322,24 @@ def _ingest_docs(docs):
     idx = 0
     total_tokens_used = 0
     total_embedding_cost_usd = 0.0
+    regular_total_tokens_used = 0
+    regular_total_embedding_cost_usd = 0.0
+    regular_chunks_generated = 0
+    syntax_chunks_generated = 0
 
     for doc in docs:
-        # chunks = chunk_text(doc["text"])
-        file_chunks = chunk_code_by_language(doc["text"], doc["source"])
-        # chunks.extend(file_chunks)
-        for chunk in file_chunks:
+        regular_chunks = chunk_text(doc["text"])
+        syntax_chunks = chunk_code_by_language(doc["text"], doc["source"])
+
+        regular_chunks_generated += len(regular_chunks)
+        syntax_chunks_generated += len(syntax_chunks)
+
+        for regular_chunk in regular_chunks:
+            regular_embedding_result = embed(regular_chunk)
+            regular_total_tokens_used += regular_embedding_result["tokens_used"]
+            regular_total_embedding_cost_usd += regular_embedding_result["cost_usd"]
+
+        for chunk in syntax_chunks:
             #BM25 CORPUS PREPARATION
             add_to_bm25(chunk, doc["source"], point_id=idx)
 
@@ -317,6 +377,23 @@ def _ingest_docs(docs):
             "chunks_indexed": 0,
             "entries": [],
         })
+        save_last_chunking_strategies({
+            "regular_chunking": {
+                "strategy": "chunk_text",
+                "chunks_generated": 0,
+                "total_tokens_used": 0,
+                "avg_tokens_per_chunk": 0.0,
+                "total_embedding_cost_usd": 0.0,
+            },
+            "syntax_chunking": {
+                "strategy": "chunk_code_by_language",
+                "chunks_generated": 0,
+                "total_tokens_used": 0,
+                "avg_tokens_per_chunk": 0.0,
+                "total_embedding_cost_usd": 0.0,
+                "used_for_rag": True,
+            },
+        })
         return stats
 
     qdrant.upsert(
@@ -348,6 +425,32 @@ def _ingest_docs(docs):
         "chunks_indexed": chunks_indexed,
         "entries": bm25_entries,
     })
+
+    regular_avg_tokens_per_chunk = (
+        regular_total_tokens_used / regular_chunks_generated if regular_chunks_generated else 0.0
+    )
+    syntax_avg_tokens_per_chunk = (
+        total_tokens_used / syntax_chunks_generated if syntax_chunks_generated else 0.0
+    )
+
+    save_last_chunking_strategies({
+        "regular_chunking": {
+            "strategy": "chunk_text",
+            "chunks_generated": regular_chunks_generated,
+            "total_tokens_used": regular_total_tokens_used,
+            "avg_tokens_per_chunk": regular_avg_tokens_per_chunk,
+            "total_embedding_cost_usd": regular_total_embedding_cost_usd,
+        },
+        "syntax_chunking": {
+            "strategy": "chunk_code_by_language",
+            "chunks_generated": syntax_chunks_generated,
+            "total_tokens_used": total_tokens_used,
+            "avg_tokens_per_chunk": syntax_avg_tokens_per_chunk,
+            "total_embedding_cost_usd": total_embedding_cost_usd,
+            "used_for_rag": True,
+        },
+    })
+
     return stats
 
 def ingest_codebase(path):

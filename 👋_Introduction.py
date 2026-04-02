@@ -44,7 +44,7 @@ st.caption(f"Current mode: {MODE}")
 
 st.write("## Instructions")
 st.write("""
-1. Ingest a codebase from the sidebar using a GitHub URL or uploaded files.
+1. Ingest a codebase from the sidebar using a GitHub URL, uploaded files, or the built-in example repo.
 2. Ask a question about the ingested codebase in the input box.
 3. Review the answer, sources, and retrieved chunks (with vector/BM25 scores and previews).
 """)
@@ -101,6 +101,20 @@ if st.sidebar.button("Ingest uploaded files", use_container_width=True):
             st.sidebar.success(f"Uploaded files indexed! ({indexed_count} chunks)")
         else:
             st.sidebar.warning("No code chunks were indexed from uploaded files.")
+
+st.sidebar.markdown("<h1 style='text-align: center; margin: 8px 0;'>OR</h1>", unsafe_allow_html=True)
+
+if st.sidebar.button("Use Example Repo", use_container_width=True):
+    with st.sidebar:
+        with st.spinner("Ingesting example repo..."):
+            init_collection()
+            ingest_stats = ingest_codebase("./repo")
+
+    indexed_count = ingest_stats.get("chunks_indexed", 0) if isinstance(ingest_stats, dict) else ingest_stats
+    if indexed_count > 0:
+        st.sidebar.success(f"Example repo indexed! ({indexed_count} chunks)")
+    else:
+        st.sidebar.warning("No code chunks were indexed from the example repo.")
 
 def has_vector_data():
     try:

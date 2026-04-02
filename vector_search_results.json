@@ -1,0 +1,353 @@
+{
+  "generated_at_utc": "2026-04-02T16:58:30.393474+00:00",
+  "dataset": "repo",
+  "strategy": "vector_only",
+  "ingest_stats": {
+    "chunks_indexed": 7,
+    "total_tokens_used": 220,
+    "avg_tokens_per_chunk": 31.428571428571427,
+    "total_embedding_cost_usd": 4.4e-06
+  },
+  "queries": [
+    {
+      "query": "is there any class structure used in the code base (with the __init__ METHOD) ?",
+      "answer": "Yes, there is a class structure used in the code base, specifically in the `Database` class, which includes the `__init__` method for initializing the instance attributes.",
+      "prompt_tokens": 311,
+      "completion_tokens": 36,
+      "total_tokens": 347,
+      "estimated_chat_cost_usd": 6.825e-05,
+      "retrieval_latency_s": 0.24675900000147521,
+      "generation_latency_s": 1.9176870999799576,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.26456794,
+          "bm25_score": null
+        },
+        {
+          "rank": 2,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.19176361,
+          "bm25_score": null
+        },
+        {
+          "rank": 3,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.1352319,
+          "bm25_score": null
+        },
+        {
+          "rank": 4,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.1249007,
+          "bm25_score": null
+        },
+        {
+          "rank": 5,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.11574954,
+          "bm25_score": null
+        },
+        {
+          "rank": 6,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.083081335,
+          "bm25_score": null
+        },
+        {
+          "rank": 7,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.069111094,
+          "bm25_score": null
+        }
+      ]
+    },
+    {
+      "query": "Trace user data flow across files: where is a user created and where is a user fetched, including language differences.",
+      "answer": "Based on the context provided, user data flows across different snippets of code with varying languages. Here\u2019s a breakdown:\n\n1. **User Creation**:\n   - In the **JavaScript** function named `createUser(name)`, a user is created and returned as an object with a randomly generated ID and the provided name. This function would be found in a file presumably related to user management in JavaScript, though the exact file name isn't specified.\n\n2. **User Fetching**:\n   - In the **Python** method `fetch_user(self, user_id)` within the `Database` class, a user is fetched based on a user ID. This method returns a dictionary with the user ID and a fixed name \"Test User\". The relevant code should be located in a file related to database operations, particularly in Python.\n\n3. **Differences in Languages**:\n   - The user creation is handled in **JavaScript**, while the user fetching is implemented in **Python**, showcasing the application of different programming languages for different functionalities in the project. \n\nOverall, the user data is created using a JavaScript function and fetched through a Python method in the context provided.",
+      "prompt_tokens": 315,
+      "completion_tokens": 235,
+      "total_tokens": 550,
+      "estimated_chat_cost_usd": 0.00018825,
+      "retrieval_latency_s": 0.16193940001539886,
+      "generation_latency_s": 5.744760400004452,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.34797782,
+          "bm25_score": null
+        },
+        {
+          "rank": 2,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.28295738,
+          "bm25_score": null
+        },
+        {
+          "rank": 3,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.26364106,
+          "bm25_score": null
+        },
+        {
+          "rank": 4,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.23448554,
+          "bm25_score": null
+        },
+        {
+          "rank": 5,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.12172866,
+          "bm25_score": null
+        },
+        {
+          "rank": 6,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.05388643,
+          "bm25_score": null
+        },
+        {
+          "rank": 7,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.041260395,
+          "bm25_score": null
+        }
+      ]
+    },
+    {
+      "query": "Which function validates credentials, what are the accepted values, and what token is returned on success?",
+      "answer": "The function that validates credentials is `login(username, password)`. The accepted values are `username = \"admin\"` and `password = \"1234\"`. Upon success, the function returns a token: `{\"status\": \"success\", \"token\": \"abc123\"}`.",
+      "prompt_tokens": 311,
+      "completion_tokens": 57,
+      "total_tokens": 368,
+      "estimated_chat_cost_usd": 8.085e-05,
+      "retrieval_latency_s": 0.19205710000824183,
+      "generation_latency_s": 2.655741399998078,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.41530615,
+          "bm25_score": null
+        },
+        {
+          "rank": 2,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.19116893,
+          "bm25_score": null
+        },
+        {
+          "rank": 3,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.19019733,
+          "bm25_score": null
+        },
+        {
+          "rank": 4,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.11367539,
+          "bm25_score": null
+        },
+        {
+          "rank": 5,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.11263287,
+          "bm25_score": null
+        },
+        {
+          "rank": 6,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.1097653,
+          "bm25_score": null
+        },
+        {
+          "rank": 7,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": -0.03087872,
+          "bm25_score": null
+        }
+      ]
+    },
+    {
+      "query": "Explain how connection state is managed in the database component before and after connect/disconnect calls.",
+      "answer": "In the `Database` class, the connection state is managed using an instance variable named `self.connection`. Initially, when an instance of `Database` is created, `self.connection` is set to `None`, indicating that there is no active connection to the database.\n\nHere's how the connection state is modified:\n\n1. **Connect Call**: \n   - When the `connect` method is called, the `self.connection` variable is updated to the string `\"connected\"`. This signifies that the database is now connected.\n   - The method returns the message `\"Database connected\"`.\n\n2. **Disconnect Call**: \n   - When the `disconnect` method is invoked, `self.connection` is set back to `None`, indicating that the connection has been terminated.\n   - The method returns the message `\"Database disconnected\"`.\n\nIn summary, the connection state transitions from `None` (disconnected) to `\"connected\"` when `connect` is called, and back to `None` when `disconnect` is executed.",
+      "prompt_tokens": 310,
+      "completion_tokens": 206,
+      "total_tokens": 516,
+      "estimated_chat_cost_usd": 0.0001701,
+      "retrieval_latency_s": 0.16467499997816049,
+      "generation_latency_s": 4.980991900025401,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.34846646,
+          "bm25_score": null
+        },
+        {
+          "rank": 2,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.100231595,
+          "bm25_score": null
+        },
+        {
+          "rank": 3,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.10004288,
+          "bm25_score": null
+        },
+        {
+          "rank": 4,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.09525618,
+          "bm25_score": null
+        },
+        {
+          "rank": 5,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.07868451,
+          "bm25_score": null
+        },
+        {
+          "rank": 6,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.038625695,
+          "bm25_score": null
+        },
+        {
+          "rank": 7,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.028306209,
+          "bm25_score": null
+        }
+      ]
+    },
+    {
+      "query": "Compare utility helpers that format payloads versus compute arithmetic; include expected output structure.",
+      "answer": "In the provided context, there are two types of utility helpers that serve different purposes: one for formatting payloads and the other for performing arithmetic calculations. \n\n### Utility Helpers for Formatting Payloads\n\n1. **Function Name:** `format_response(data)`\n   - **Purpose:** This function formats the given data into a structured response format.\n   - **Output Structure:**\n     ```json\n     {\n         \"status\": \"ok\",\n         \"data\": data\n     }\n     ```\n   - **Description:** It encapsulates the `data` in a standard format with a status indicator. The `data` field can contain any type of information pertinent to the application's context.\n\n### Utility Helpers for Arithmetic Computation\n\n2. **Function Name:** `calculate_sum(a, b)`\n   - **Purpose:** This function computes the sum of two numbers.\n   - **Output Structure:** The output is a numerical value representing the sum of `a` and `b`.\n   - **Description:** The output is straightforward and not wrapped in any structured format; the function simply returns the result of the arithmetic operation.\n\n### Comparison\n\n- **Purpose:**\n  - The helper for formatting (i.e., `format_response`) is concerned with structuring data for better readability and standardized responses, which is essential in API responses.\n  - The arithmetic helper (i.e., `calculate_sum`) focuses on computation and returns a direct numerical result.\n\n- **Expected Output Structure:**\n  - `format_response` returns a JSON-like object with a status and data, enhancing clarity in communication.\n  - `calculate_sum` returns a raw numerical value without additional structure, emphasizing the result of a computation rather than conveying a message or status.\n\nOverall, the formatting utility enhances the user experience by making data transfer more systematic, while the arithmetic utility serves a fundamental mathematical operation.",
+      "prompt_tokens": 308,
+      "completion_tokens": 370,
+      "total_tokens": 678,
+      "estimated_chat_cost_usd": 0.00026819999999999996,
+      "retrieval_latency_s": 0.14402840001275763,
+      "generation_latency_s": 6.860014400008367,
+      "chunks_used": [
+        {
+          "rank": 1,
+          "id": 6,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.28519267,
+          "bm25_score": null
+        },
+        {
+          "rank": 2,
+          "id": 5,
+          "source": "utils.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.20181386,
+          "bm25_score": null
+        },
+        {
+          "rank": 3,
+          "id": 1,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.15043063,
+          "bm25_score": null
+        },
+        {
+          "rank": 4,
+          "id": 0,
+          "source": "api.js",
+          "hybrid_score": null,
+          "vector_similarity": 0.09538081,
+          "bm25_score": null
+        },
+        {
+          "rank": 5,
+          "id": 2,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.040346727,
+          "bm25_score": null
+        },
+        {
+          "rank": 6,
+          "id": 3,
+          "source": "auth.py",
+          "hybrid_score": null,
+          "vector_similarity": 0.030332081,
+          "bm25_score": null
+        },
+        {
+          "rank": 7,
+          "id": 4,
+          "source": "database.py",
+          "hybrid_score": null,
+          "vector_similarity": -0.041654088,
+          "bm25_score": null
+        }
+      ]
+    }
+  ]
+}

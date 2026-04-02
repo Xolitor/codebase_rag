@@ -16,10 +16,6 @@ def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
         chunks.append(text[i:i + chunk_size])
     return chunks
 
-#SYNTAX AWARE CHUNKING
-def chunk_code_syntax_aware():
-    pass
-
 #LANGUAGE SPECIFIC CHUNKING
 import re
 import ast

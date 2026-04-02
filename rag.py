@@ -217,7 +217,7 @@ def bm25_search(query, top_k=TOP_K):
 
     return results
 
-def search(query):
+def search(query, use_hybrid=True):
     sanitized_query = sanitize(query)
     if not sanitized_query:
         print("[rag][sanitize] query blocked by sanitizer during retrieval")
@@ -243,7 +243,11 @@ def search(query):
         payload = dict(getattr(p, "payload", {}) or {})
         payload["id"] = getattr(p, "id", payload.get("id")) #hybrid version relies on id for merging, ensure it's present in payload
         payload["score"] = getattr(p, "score", None)
+        payload["vector_score"] = payload["score"]
         results.append(payload)
+
+    if not use_hybrid:
+        return results[:TOP_K]
 
     # HYBRID SEARCH
     bm25_results = bm25_search(sanitized_query) 

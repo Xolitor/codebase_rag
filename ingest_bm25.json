@@ -5,7 +5,7 @@
     {
       "id": 0,
       "source": "api.js",
-      "text_preview": "function getUser(userId) {\r\n    return {\r\n        id: userId,\r\n        name: \"John Doe\"\r\n    }",
+      "text_preview": "function getUser(userId) {\n    return {\n        id: userId,\n        name: \"John Doe\"\n    }",
       "token_count": 9,
       "tokens_preview": [
         "function",
@@ -22,7 +22,7 @@
     {
       "id": 1,
       "source": "api.js",
-      "text_preview": "function createUser(name) {\r\n    return {\r\n        id: Math.random(),\r\n        name: name\r\n    }",
+      "text_preview": "function createUser(name) {\n    return {\n        id: Math.random(),\n        name: name\n    }",
       "token_count": 9,
       "tokens_preview": [
         "function",
@@ -39,7 +39,7 @@
     {
       "id": 2,
       "source": "auth.py",
-      "text_preview": "def login(username, password):\r\n    if username == \"admin\" and password == \"1234\":\r\n        return {\"status\": \"success\", \"token\": \"abc123\"}\r\n    return {\"status\": \"error\", \"message\": \"Invalid credentials\"}",
+      "text_preview": "def login(username, password):\n    if username == \"admin\" and password == \"1234\":\n        return {\"status\": \"success\", \"token\": \"abc123\"}\n    return {\"status\": \"error\", \"message\": \"Invalid credentials\"}",
       "token_count": 21,
       "tokens_preview": [
         "def",
@@ -68,7 +68,7 @@
     {
       "id": 3,
       "source": "auth.py",
-      "text_preview": "def logout(user_id):\r\n    return f\"User {user_id} logged out\"",
+      "text_preview": "def logout(user_id):\n    return f\"User {user_id} logged out\"",
       "token_count": 9,
       "tokens_preview": [
         "def",
@@ -85,7 +85,7 @@
     {
       "id": 4,
       "source": "database.py",
-      "text_preview": "class Database:\r\n    def __init__(self):\r\n        self.connection = None\r\n\r\n    def connect(self):\r\n        self.connection = \"connected\"\r\n        return \"Database connected\"\r\n\r\n    def disconnect(self):\r\n        self.connection = None\r\n        return \"Database disconnected\"\r\n\r\n    def fetch_user(se",
+      "text_preview": "class Database:\n    def __init__(self):\n        self.connection = None\n\n    def connect(self):\n        self.connection = \"connected\"\n        return \"Database connected\"\n\n    def disconnect(self):\n        self.connection = None\n        return \"Database disconnected\"\n\n    def fetch_user(self, user_id)",
       "token_count": 36,
       "tokens_preview": [
         "class",
@@ -123,7 +123,7 @@
     {
       "id": 5,
       "source": "utils.py",
-      "text_preview": "def format_response(data):\r\n    return {\r\n        \"status\": \"ok\",\r\n        \"data\": data\r\n    }",
+      "text_preview": "def format_response(data):\n    return {\n        \"status\": \"ok\",\n        \"data\": data\n    }",
       "token_count": 8,
       "tokens_preview": [
         "def",
@@ -139,7 +139,7 @@
     {
       "id": 6,
       "source": "utils.py",
-      "text_preview": "def calculate_sum(a, b):\r\n    return a + b",
+      "text_preview": "def calculate_sum(a, b):\n    return a + b",
       "token_count": 7,
       "tokens_preview": [
         "def",
