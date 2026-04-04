@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
+from qdrant_client.http.exceptions import ResponseHandlingException
 import chunk
 from config import (
     COLLECTION_NAME,
@@ -235,13 +236,58 @@ def embed(text):
     }
 
 #STORE
-if MODE == "demo":
-    qdrant = QdrantClient(":memory:")
-else:
-    qdrant = QdrantClient(
-        host="localhost",
-        port=6333
+QDRANT_LOCAL_HOST = "localhost"
+QDRANT_LOCAL_PORT = 6333
+IS_QDRANT_IN_MEMORY = MODE == "demo"
+
+
+class QdrantProxy:
+    def __init__(self, client):
+        self._client = client
+
+    def set_client(self, client):
+        self._client = client
+
+    def __getattr__(self, item):
+        return getattr(self._client, item)
+
+
+def _is_qdrant_connection_error(exc):
+    if isinstance(exc, ResponseHandlingException):
+        return True
+
+    message = str(exc).lower()
+    return (
+        "winerror 10061" in message
+        or "connection refused" in message
+        or "failed to establish a new connection" in message
     )
+
+
+def _switch_qdrant_to_memory(reason):
+    global IS_QDRANT_IN_MEMORY
+
+    if IS_QDRANT_IN_MEMORY:
+        return False
+
+    print(
+        "[ingest] local qdrant unavailable "
+        f"({QDRANT_LOCAL_HOST}:{QDRANT_LOCAL_PORT}) -> falling back to in-memory store: {reason}"
+    )
+    qdrant.set_client(QdrantClient(":memory:"))
+    IS_QDRANT_IN_MEMORY = True
+    return True
+
+
+if MODE == "demo":
+    _initial_qdrant_client = QdrantClient(":memory:")
+else:
+    _initial_qdrant_client = QdrantClient(
+        host=QDRANT_LOCAL_HOST,
+        port=QDRANT_LOCAL_PORT,
+    )
+
+qdrant = QdrantProxy(_initial_qdrant_client)
 
 def save_last_ingest_stats(stats):
     try:
@@ -308,10 +354,20 @@ def load_last_chunking_strategies():
         return None
 
 def init_collection():
-    qdrant.recreate_collection(
-        collection_name=COLLECTION_NAME,
-        vectors_config={"size": VECTOR_SIZE, "distance": "Cosine"}
-    )
+    try:
+        qdrant.recreate_collection(
+            collection_name=COLLECTION_NAME,
+            vectors_config={"size": VECTOR_SIZE, "distance": "Cosine"}
+        )
+    except Exception as exc:
+        if _is_qdrant_connection_error(exc) and _switch_qdrant_to_memory(exc):
+            qdrant.recreate_collection(
+                collection_name=COLLECTION_NAME,
+                vectors_config={"size": VECTOR_SIZE, "distance": "Cosine"}
+            )
+        else:
+            raise
+
     reset_bm25()
 
 def tokenize(text):
@@ -396,10 +452,23 @@ def _ingest_docs(docs):
         })
         return stats
 
-    qdrant.upsert(
-        collection_name = COLLECTION_NAME,
-        points = points
-    )
+    try:
+        qdrant.upsert(
+            collection_name = COLLECTION_NAME,
+            points = points
+        )
+    except Exception as exc:
+        if _is_qdrant_connection_error(exc) and _switch_qdrant_to_memory(exc):
+            qdrant.recreate_collection(
+                collection_name=COLLECTION_NAME,
+                vectors_config={"size": VECTOR_SIZE, "distance": "Cosine"}
+            )
+            qdrant.upsert(
+                collection_name = COLLECTION_NAME,
+                points = points
+            )
+        else:
+            raise
 
     chunks_indexed = len(points)
     avg_tokens_per_chunk = total_tokens_used / chunks_indexed
