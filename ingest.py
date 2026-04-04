@@ -15,6 +15,8 @@ from config import (
     EMBEDDING_PRICE_PER_1M_TOKENS,
     MODE,
     MAX_INGEST_FILES,
+    QDRANT_LOCAL_HOST,
+    QDRANT_LOCAL_PORT,
 )
 from openai import OpenAI
 from chunk import chunk_code_by_language, chunk_text
@@ -236,8 +238,6 @@ def embed(text):
     }
 
 #STORE
-QDRANT_LOCAL_HOST = "localhost"
-QDRANT_LOCAL_PORT = 6333
 IS_QDRANT_IN_MEMORY = MODE == "demo"
 
 
